@@ -5,6 +5,7 @@ import image
 import weather
 import paxdate
 import simplejson
+import timetillpax
 
 def loadConfig():
     print ('loading config')
@@ -33,8 +34,11 @@ def img(content):
 def wthr(content):
     return weather.weather(content)
 
-def ttp():
+def pdate():
     return paxdate.paxdate()
+    
+def timeleft():
+    return timetillpax.timetillpax()
 
 @client.event
 def on_message(message):
@@ -50,8 +54,9 @@ def on_message(message):
     elif message.content.startswith('!weather'):
         client.send_message(message.channel,wthr(message.content[9:]))
     elif message.content.startswith('!paxDate'):
-        client.send_message(message.channel, ttp(), False, False)
-        
+        client.send_message(message.channel, pdate(), False, False)
+    elif message.content.startswith('!timeTillPax'):
+        client.send_message(message.channel, timeleft(), False, False)
 
 @client.event
 def on_ready():
