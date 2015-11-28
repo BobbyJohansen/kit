@@ -1,11 +1,15 @@
 import cleverbot
 import discord
-import time
+import simplejson
+from pprint import pprint
+
+
+# plugins
 import image
 import weather
 import paxdate
-import simplejson
 import timetillpax
+import reddit
 
 def loadConfig():
     print ('loading config')
@@ -39,6 +43,31 @@ def pdate():
     
 def timeleft():
     return timetillpax.timetillpax()
+    
+def str2bool(v):
+  return v.lower() in ("yes", "true", "t", "1")
+  
+  
+def allowPerm(channel, target, perm):
+    client.set_channel_permissions(channel, target, discord.Permissions(), perm)
+  
+def denyPerm(channel, target, perm):
+    client.set_channel_permissions(channel, target, perm, discord.Permissions())
+  
+    
+    
+# !reddit channelName
+# !reddit rand unsafe
+def getFromReddit(content):
+    if content.startswith('rand'):
+        unsafe = str2bool(content[5:])
+        print (unsafe)
+        return reddit.getRandomSubmissionFromAll(unsafe)
+    else:
+        try:
+            return reddit.getRandSubmissionFromSub(content)
+        except:
+            print('Failed to get From reddit may not be a valid subreddit')
 
 @client.event
 def on_message(message):
@@ -57,6 +86,17 @@ def on_message(message):
         client.send_message(message.channel, pdate(), False, False)
     elif message.content.startswith('!timeTillPax'):
         client.send_message(message.channel, timeleft(), False, False)
+    elif message.content.startswith('!reddit'):
+        response = getFromReddit(message.content[8:])
+        member = discord.utils.find(lambda m: m.name == 'Pax Bot', message.channel.server.members)
+        print member
+        perm = discord.Permissions()
+        perm.can_embed_links = False
+        denyPerm(message.channel, member, perm )
+        client.send_message(message.channel,'Title: ' + response['title'] + 'Link: ' + response['link'])
+        perm.can_embed_links = True
+        allowPerm(message.channel, member, perm)
+
 
 @client.event
 def on_ready():

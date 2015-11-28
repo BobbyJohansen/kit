@@ -1,3 +1,4 @@
 cleverbot
 discord.py
 simplejson
+praw
